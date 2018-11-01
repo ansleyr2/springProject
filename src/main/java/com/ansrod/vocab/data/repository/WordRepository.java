@@ -1,4 +1,4 @@
-package com.ansrod.vocab.repository;
+package com.ansrod.vocab.data.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
