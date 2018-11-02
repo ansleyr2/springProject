@@ -1,40 +1,29 @@
 package com.ansrod.vocab.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-@Entity
-@Table(name="WORD")
-public class Word {
-	@Id
-	@Column(name="word_id")
-	@GeneratedValue(strategy= GenerationType.AUTO)
-	private long id;
-	@Column(name="word")
+public class SaveWordRequest {
+	private Long id;
 	private String word;
-	@Column(name="meaning")
 	private String meaning;
-	@Column(name="sentence")
 	private String sentence;
+	// private String created_date;
 	
-	public Word() {
+	
+	
+	public Long getId() {
+		return id;
+	}
+	public SaveWordRequest() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Word(String word, String meaning, String sentence) {
+	public SaveWordRequest(String word, String meaning, String sentence) {
 		super();
+		// this.id = id;
 		this.word = word;
 		this.meaning = meaning;
 		this.sentence = sentence;
 	}
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getWord() {
@@ -55,5 +44,7 @@ public class Word {
 	public void setSentence(String sentence) {
 		this.sentence = sentence;
 	}
+	
+	
 	
 }
