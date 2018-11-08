@@ -1,6 +1,7 @@
 package com.ansrod.vocab.web.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ansrod.vocab.business.domain.LearnedWord;
@@ -50,15 +52,69 @@ public class WordServiceController {
 	
 	// Save word
 	@CrossOrigin(origins = "http://localhost:3000")
-	@RequestMapping(method= RequestMethod.POST, value="/saveword", produces= MediaType.APPLICATION_JSON_UTF8_VALUE ,
+	@RequestMapping(method= RequestMethod.POST, value="/words/saveword", produces= MediaType.APPLICATION_JSON_UTF8_VALUE ,
 			consumes= MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<LearnedWord> saveWord(
+	@ResponseStatus(HttpStatus.CREATED)
+	public LearnedWord saveWord(
 			@RequestBody
 			SaveWordRequest saveWordRequest){
 		
 		Word word = conversionService.convert(saveWordRequest, Word.class);
 		wordRepository.save(word);
 		
-		return new ResponseEntity<>(new LearnedWord(), HttpStatus.CREATED);
+		//TO-DO : return the saved entity
+		return new LearnedWord(saveWordRequest.getWord(), saveWordRequest.getMeaning(),
+				saveWordRequest.getSentence());
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, value="/words/update/{wordId}", produces= MediaType.APPLICATION_JSON_UTF8_VALUE,
+			consumes= MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public Word updateWithPut(@PathVariable(value="wordId") long id,
+			@RequestBody
+			SaveWordRequest saveWordRequest){
+		Word word = verifyWord(id);
+		word.setMeaning(saveWordRequest.getMeaning());
+		word.setSentence(saveWordRequest.getSentence());
+		word.setWord(saveWordRequest.getWord());
+		wordRepository.save(word);
+		// return new ResponseEntity<>(new LearnedWord(), HttpStatus.OK);
+		//return new Word(saveWordRequest.getWord(), saveWordRequest.getMeaning(),
+			//	saveWordRequest.getSentence());
+		return verifyWord(id);
+	}
+	
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(method = RequestMethod.PATCH, value="/words/update/{wordId}", produces= MediaType.APPLICATION_JSON_UTF8_VALUE,
+			consumes= MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public Word updateWithPatch(@PathVariable(value="wordId") long id,
+			@RequestBody
+			SaveWordRequest saveWordRequest){
+		Word word = verifyWord(id);
+		//LearnedWord learnedWord = new LearnedWord();
+		if(saveWordRequest.getMeaning() != null) {
+			word.setMeaning(saveWordRequest.getMeaning());
+			//learnedWord.setMeaning(saveWordRequest.getMeaning());
+		}
+		if(saveWordRequest.getSentence() != null) {
+			word.setSentence(saveWordRequest.getSentence());
+			//learnedWord.setSentence(saveWordRequest.getSentence());
+		}
+		if(saveWordRequest.getWord() != null) {
+			word.setWord(saveWordRequest.getWord());
+			//learnedWord.setWord(saveWordRequest.getWord());
+		}
+		
+		wordRepository.save(word);
+		return verifyWord(id);
+	}
+	
+	// Returns the word for the id
+	private Word verifyWord(long wordid) throws NoSuchElementException {
+		Word word = wordRepository.findOne(wordid);
+		if(word == null) {
+			throw new NoSuchElementException("No word found");
+		}
+		return word;
 	}
 }
